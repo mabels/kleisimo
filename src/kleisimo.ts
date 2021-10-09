@@ -1,12 +1,12 @@
 import { Key } from './key';
 
-export interface KleisimoObj<T> {
+export interface Obj<T> {
   readonly e: string[];
   readonly h: string;
   // readonly t: string;
 }
 
-export interface ValueType<T, H = KleisimoObj<T>> {
+export interface ValueType<T, H = Obj<T>> {
   readonly name: string;
   readonly type: string;
   key?: Key;
@@ -34,20 +34,20 @@ export class AttributeRegister<O, H> {
 
   public asUnencrypted(): O {
     return this.attributes.reduce((ret, a) => {
-      ret[a.name] = a.get() 
+      ret[a.name] = a.get();
       return ret;
     }, {} as Record<string, unknown>) as unknown as O;
   }
 
   public asEncrypted(): H {
     return this.attributes.reduce((ret, a) => {
-      ret[a.name] = a.getKleisimo() 
+      ret[a.name] = a.getKleisimo();
       return ret;
     }, {} as Record<string, unknown>) as unknown as H;
   }
 }
 
-export class KleisimoAttribute<T> implements ValueType<T> {
+export class Attribute<T> implements ValueType<T> {
   readonly name: string;
   readonly type: string;
   key: Key;
@@ -69,7 +69,7 @@ export class KleisimoAttribute<T> implements ValueType<T> {
   unpad(b: string): string {
     return this.key.decrypt(b).toString('utf-8').split('\x00')[0];
   }
-  setKleisimo(t: KleisimoObj<T>): T {
+  setKleisimo(t: Obj<T>): T {
     const x = this.unpad(t.e[0]);
     // unpad
     switch (this.type) {
@@ -80,7 +80,7 @@ export class KleisimoAttribute<T> implements ValueType<T> {
         this.value = x as unknown as T;
         break;
       default:
-          throw Error(`unknown type: ${this.type}`)
+        throw Error(`unknown type: ${this.type}`);
     }
     return this.value;
   }
@@ -90,29 +90,29 @@ export class KleisimoAttribute<T> implements ValueType<T> {
       padlen += 8 - (p.length % 8);
     }
     const o = Buffer.alloc(padlen, 0);
-    o.write(p, 'utf-8')
+    o.write(p, 'utf-8');
     return o;
   }
-  getKleisimo(): KleisimoObj<T> {
+  getKleisimo(): Obj<T> {
     const v = '' + this.value;
     // pad
     return {
       e: [this.key.encrypt(this.pad(v))],
       h: this.key.hash(v),
       // t: this.type
-    }
+    };
   }
   // asKleisimoValue): KleisimoValue {
   // }
 }
 
-export interface KleisimoDateObj {
+export interface DateObj {
   month: number;
   year: number;
-  encrypted: string
+  encrypted: string;
 }
 
-export class KleisimoDateAttribute implements ValueType<Date, KleisimoDateObj> {
+export class DateAttribute implements ValueType<Date, DateObj> {
   readonly name: string;
   readonly type: string;
   key: Key;
@@ -125,18 +125,18 @@ export class KleisimoDateAttribute implements ValueType<Date, KleisimoDateObj> {
     ar.register(this);
   }
   get(): Date {
-    return this.value
+    return this.value;
   }
-  setKleisimo(t: KleisimoDateObj): Date {
-    this.value = new Date(this.key.decrypt(t.encrypted).toString())
-    return this.value
+  setKleisimo(t: DateObj): Date {
+    this.value = new Date(this.key.decrypt(t.encrypted).toString());
+    return this.value;
   }
-  getKleisimo(): KleisimoDateObj {
+  getKleisimo(): DateObj {
     return {
       month: this.value.getMonth(),
       year: this.value.getFullYear(),
-      encrypted: this.key.encrypt(this.value.toISOString())
-    }
+      encrypted: this.key.encrypt(this.value.toISOString()),
+    };
   }
   set(t: Date): Date {
     this.value = t;
@@ -144,11 +144,11 @@ export class KleisimoDateAttribute implements ValueType<Date, KleisimoDateObj> {
   }
 }
 
-export interface KleisimoZipObj {
+export interface ZipObj {
   readonly zip: string;
 }
 
-export class KleisimoZipAttribute implements ValueType<string, KleisimoZipObj> {
+export class ZipAttribute implements ValueType<string, ZipObj> {
   readonly name: string;
   readonly type: string;
   key: Key;
@@ -163,14 +163,14 @@ export class KleisimoZipAttribute implements ValueType<string, KleisimoZipObj> {
   get(): string {
     return this.value;
   }
-  setKleisimo(t: KleisimoZipObj): string {
+  setKleisimo(t: ZipObj): string {
     this.value = t.zip;
     return this.value;
   }
-  getKleisimo(): KleisimoZipObj {
+  getKleisimo(): ZipObj {
     return {
-      zip: this.value
-    }
+      zip: this.value,
+    };
   }
   set(t: string): string {
     this.value = t;

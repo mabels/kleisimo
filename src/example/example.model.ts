@@ -1,14 +1,4 @@
-import {
-  AttributeRegister,
-  KleisimoAttribute,
-  KleisimoDateAttribute,
-  KleisimoDateObj,
-  KleisimoObj,
-  KleisimoZipAttribute,
-  KleisimoZipObj,
-  OpenAttribute,
-} from '../kleisimo';
-import { Key } from '../index';
+import { Key, Kleisimo } from '../index';
 
 export interface ExampleObj {
   readonly Id: string;
@@ -23,13 +13,13 @@ export interface ExampleObj {
 
 export interface ExampleKleisimo {
   readonly Id: string;
-  readonly CreatedAt: KleisimoDateObj;
-  readonly RegisteredWithToken: KleisimoObj<string>;
-  readonly FirstName: KleisimoObj<string>;
-  readonly LastName: KleisimoObj<string>;
-  readonly Email: KleisimoObj<string>;
-  readonly Zip: KleisimoZipObj;
-  readonly UpdatedAt: KleisimoDateObj;
+  readonly CreatedAt: Kleisimo.DateObj;
+  readonly RegisteredWithToken: Kleisimo.Obj<string>;
+  readonly FirstName: Kleisimo.Obj<string>;
+  readonly LastName: Kleisimo.Obj<string>;
+  readonly Email: Kleisimo.Obj<string>;
+  readonly Zip: Kleisimo.ZipObj;
+  readonly UpdatedAt: Kleisimo.DateObj;
 }
 
 export interface ExampleKey {
@@ -42,30 +32,30 @@ export interface ExampleKey {
   readonly UpdatedAt: Key.Key;
 }
 
-export class Example extends AttributeRegister<ExampleObj, ExampleKleisimo> {
-  readonly Id = new OpenAttribute<string>(this, 'Id', 'string');
-  readonly CreatedAt: KleisimoDateAttribute;
-  readonly RegisteredWithToken: KleisimoAttribute<string>;
-  readonly FirstName: KleisimoAttribute<string>;
-  readonly LastName: KleisimoAttribute<string>;
-  readonly Email: KleisimoAttribute<string>;
-  readonly Zip: KleisimoZipAttribute;
-  readonly UpdatedAt: KleisimoDateAttribute;
+export class Example extends Kleisimo.AttributeRegister<ExampleObj, ExampleKleisimo> {
+  readonly Id = new Kleisimo.OpenAttribute<string>(this, 'Id', 'string');
+  readonly CreatedAt: Kleisimo.DateAttribute;
+  readonly RegisteredWithToken: Kleisimo.Attribute<string>;
+  readonly FirstName: Kleisimo.Attribute<string>;
+  readonly LastName: Kleisimo.Attribute<string>;
+  readonly Email: Kleisimo.Attribute<string>;
+  readonly Zip: Kleisimo.ZipAttribute;
+  readonly UpdatedAt: Kleisimo.DateAttribute;
 
   constructor(key: ExampleKey) {
     super();
-    this.CreatedAt = new KleisimoDateAttribute(this, 'CreatedAt', key.CreatedAt);
-    this.RegisteredWithToken = new KleisimoAttribute<string>(
+    this.CreatedAt = new Kleisimo.DateAttribute(this, 'CreatedAt', key.CreatedAt);
+    this.RegisteredWithToken = new Kleisimo.Attribute<string>(
       this,
       'RegisteredWithToken',
       'string',
       key.RegisteredWithToken,
     );
-    this.FirstName = new KleisimoAttribute<string>(this, 'FirstName', 'string', key.FirstName);
-    this.LastName = new KleisimoAttribute<string>(this, 'LastName', 'string', key.LastName);
-    this.Email = new KleisimoAttribute<string>(this, 'Email', 'string', key.Email);
-    this.Zip = new KleisimoZipAttribute(this, 'Zip', key.Email);
-    this.UpdatedAt = new KleisimoDateAttribute(this, 'UpdatedAt', key.UpdatedAt);
+    this.FirstName = new Kleisimo.Attribute<string>(this, 'FirstName', 'string', key.FirstName);
+    this.LastName = new Kleisimo.Attribute<string>(this, 'LastName', 'string', key.LastName);
+    this.Email = new Kleisimo.Attribute<string>(this, 'Email', 'string', key.Email);
+    this.Zip = new Kleisimo.ZipAttribute(this, 'Zip', key.Email);
+    this.UpdatedAt = new Kleisimo.DateAttribute(this, 'UpdatedAt', key.UpdatedAt);
   }
   public assign(ue: ExampleObj) {
     this.Id.set(ue.Id);

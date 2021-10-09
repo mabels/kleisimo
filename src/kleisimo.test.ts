@@ -1,12 +1,4 @@
-import {
-  AttributeRegister,
-  KleisimoObj,
-  ValueType,
-  OpenAttribute,
-  KleisimoZipAttribute,
-  KleisimoDateAttribute,
-  KleisimoAttribute,
-} from './kleisimo';
+import { AttributeRegister, Obj, ValueType, OpenAttribute, ZipAttribute, DateAttribute, Attribute } from './kleisimo';
 import { Key } from './key';
 
 class MockValueType implements ValueType<string> {
@@ -24,10 +16,10 @@ class MockValueType implements ValueType<string> {
   get(): string {
     throw new Error('Method not implemented.');
   }
-  setKleisimo(t: KleisimoObj<string>): string {
+  setKleisimo(t: Obj<string>): string {
     throw new Error('Method not implemented.');
   }
-  getKleisimo(): KleisimoObj<string> {
+  getKleisimo(): Obj<string> {
     throw new Error('Method not implemented.');
   }
 }
@@ -62,11 +54,11 @@ test('KleisimoZipAttribute', () => {
   const key = new Key({
     hashSeed: 'hash',
     symetric: {
-        nounce: Buffer.alloc(12, 0xff).toString('base64'),
-        key: Buffer.alloc(32, 0x01).toString('base64'),
-      },
+      nounce: Buffer.alloc(12, 0xff).toString('base64'),
+      key: Buffer.alloc(32, 0x01).toString('base64'),
+    },
   });
-  const op = new KleisimoZipAttribute(ar, 'bla', key);
+  const op = new ZipAttribute(ar, 'bla', key);
   expect(ar.attributes).toEqual([
     { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
   ]);
@@ -84,11 +76,11 @@ test('KleisimoDateAttribute', () => {
   const key = new Key({
     hashSeed: 'hash',
     symetric: {
-        nounce: Buffer.alloc(12, 0xff).toString('base64'),
-        key: Buffer.alloc(32, 0x01).toString('base64'),
-      },
+      nounce: Buffer.alloc(12, 0xff).toString('base64'),
+      key: Buffer.alloc(32, 0x01).toString('base64'),
+    },
   });
-  const op = new KleisimoDateAttribute(ar, 'bla', key);
+  const op = new DateAttribute(ar, 'bla', key);
   expect(ar.attributes).toEqual([
     { name: 'bla', type: 'Date', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
   ]);
@@ -119,11 +111,11 @@ test('KleisimoAttribute<string>', () => {
   const key = new Key({
     hashSeed: 'hash',
     symetric: {
-    nounce: Buffer.alloc(12, 0xff).toString('base64'),
-    key: Buffer.alloc(32, 0x01).toString('base64'),
-  },
+      nounce: Buffer.alloc(12, 0xff).toString('base64'),
+      key: Buffer.alloc(32, 0x01).toString('base64'),
+    },
   });
-  const op = new KleisimoAttribute<string>(ar, 'bla', 'string', key);
+  const op = new Attribute<string>(ar, 'bla', 'string', key);
   expect(ar.attributes).toEqual([
     { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
   ]);
@@ -148,37 +140,36 @@ test('KleisimoAttribute<string>', () => {
   });
 });
 
-
 test('KleisimoAttribute<number>', () => {
-    const ar = new AttributeRegister();
-    const key = new Key({
-      hashSeed: 'hash',
-      symetric: {
+  const ar = new AttributeRegister();
+  const key = new Key({
+    hashSeed: 'hash',
+    symetric: {
       nounce: Buffer.alloc(12, 0xff).toString('base64'),
       key: Buffer.alloc(32, 0x01).toString('base64'),
     },
-    });
-    const op = new KleisimoAttribute<number>(ar, 'bla', 'number', key);
-    expect(ar.attributes).toEqual([
-      { name: 'bla', type: 'number', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
-    ]);
-    expect(op.get()).toEqual(undefined);
-    op.set(4711);
-    expect(op.get()).toEqual(4711);
-    expect(op.getKleisimo()).toEqual({
-      e: [key.encrypt(op.pad('' + op.get()))],
-      h: key.hash('' + op.get()),
-      // t: 'number',
-    });
-    op.setKleisimo({
-      e: [key.encrypt('4711')],
-      h: key.hash('yyyyy'),
-      // t: 'number',
-    });
-    expect(op.get()).toEqual(4711);
-    expect(op.getKleisimo()).toEqual({
-      e: [key.encrypt(op.pad('4711'))],
-      h: key.hash('4711'),
-      // t: 'number',
-    });
   });
+  const op = new Attribute<number>(ar, 'bla', 'number', key);
+  expect(ar.attributes).toEqual([
+    { name: 'bla', type: 'number', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
+  ]);
+  expect(op.get()).toEqual(undefined);
+  op.set(4711);
+  expect(op.get()).toEqual(4711);
+  expect(op.getKleisimo()).toEqual({
+    e: [key.encrypt(op.pad('' + op.get()))],
+    h: key.hash('' + op.get()),
+    // t: 'number',
+  });
+  op.setKleisimo({
+    e: [key.encrypt('4711')],
+    h: key.hash('yyyyy'),
+    // t: 'number',
+  });
+  expect(op.get()).toEqual(4711);
+  expect(op.getKleisimo()).toEqual({
+    e: [key.encrypt(op.pad('4711'))],
+    h: key.hash('4711'),
+    // t: 'number',
+  });
+});
