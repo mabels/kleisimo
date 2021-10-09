@@ -1,12 +1,12 @@
 import {
   AttributeRegister,
-  HiddenObj,
+  KleisimoObj,
   ValueType,
   OpenAttribute,
-  HiddenZipAttribute,
-  HiddenDateAttribute,
-  HiddenAttribute,
-} from './hidden';
+  KleisimoZipAttribute,
+  KleisimoDateAttribute,
+  KleisimoAttribute,
+} from './kleisimo';
 import { Key } from './key';
 
 class MockValueType implements ValueType<string> {
@@ -24,10 +24,10 @@ class MockValueType implements ValueType<string> {
   get(): string {
     throw new Error('Method not implemented.');
   }
-  setHidden(t: HiddenObj<string>): string {
+  setKleisimo(t: KleisimoObj<string>): string {
     throw new Error('Method not implemented.');
   }
-  getHidden(): HiddenObj<string> {
+  getKleisimo(): KleisimoObj<string> {
     throw new Error('Method not implemented.');
   }
 }
@@ -51,13 +51,13 @@ test('Open', () => {
   expect(op.get()).toEqual(undefined);
   op.set('in');
   expect(op.get()).toEqual('in');
-  expect(op.getHidden()).toEqual('in');
-  op.setHidden('bla');
+  expect(op.getKleisimo()).toEqual('in');
+  op.setKleisimo('bla');
   expect(op.get()).toEqual('bla');
-  expect(op.getHidden()).toEqual('bla');
+  expect(op.getKleisimo()).toEqual('bla');
 });
 
-test('HiddenZipAttribute', () => {
+test('KleisimoZipAttribute', () => {
   const ar = new AttributeRegister();
   const key = new Key({
     hashSeed: 'hash',
@@ -66,20 +66,20 @@ test('HiddenZipAttribute', () => {
         key: Buffer.alloc(32, 0x01).toString('base64'),
       },
   });
-  const op = new HiddenZipAttribute(ar, 'bla', key);
+  const op = new KleisimoZipAttribute(ar, 'bla', key);
   expect(ar.attributes).toEqual([
     { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
   ]);
   expect(op.get()).toEqual(undefined);
   op.set('in');
   expect(op.get()).toEqual('in');
-  expect(op.getHidden()).toEqual({ zip: 'in' });
-  op.setHidden({ zip: 'bla' });
+  expect(op.getKleisimo()).toEqual({ zip: 'in' });
+  op.setKleisimo({ zip: 'bla' });
   expect(op.get()).toEqual('bla');
-  expect(op.getHidden()).toEqual({ zip: 'bla' });
+  expect(op.getKleisimo()).toEqual({ zip: 'bla' });
 });
 
-test('HiddenDateAttribute', () => {
+test('KleisimoDateAttribute', () => {
   const ar = new AttributeRegister();
   const key = new Key({
     hashSeed: 'hash',
@@ -88,7 +88,7 @@ test('HiddenDateAttribute', () => {
         key: Buffer.alloc(32, 0x01).toString('base64'),
       },
   });
-  const op = new HiddenDateAttribute(ar, 'bla', key);
+  const op = new KleisimoDateAttribute(ar, 'bla', key);
   expect(ar.attributes).toEqual([
     { name: 'bla', type: 'Date', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
   ]);
@@ -96,25 +96,25 @@ test('HiddenDateAttribute', () => {
   const now = new Date();
   op.set(now);
   expect(op.get()).toEqual(now);
-  expect(op.getHidden()).toEqual({
+  expect(op.getKleisimo()).toEqual({
     encrypted: key.encrypt(now.toISOString()),
     month: now.getMonth(),
     year: now.getFullYear(),
   });
-  op.setHidden({
+  op.setKleisimo({
     month: 44,
     year: 44,
     encrypted: key.encrypt(now.toISOString()),
   });
   expect(op.get().toISOString()).toEqual(now.toISOString());
-  expect(op.getHidden()).toEqual({
+  expect(op.getKleisimo()).toEqual({
     encrypted: key.encrypt(now.toISOString()),
     month: now.getMonth(),
     year: now.getFullYear(),
   });
 });
 
-test('HiddenAttribute<string>', () => {
+test('KleisimoAttribute<string>', () => {
   const ar = new AttributeRegister();
   const key = new Key({
     hashSeed: 'hash',
@@ -123,25 +123,25 @@ test('HiddenAttribute<string>', () => {
     key: Buffer.alloc(32, 0x01).toString('base64'),
   },
   });
-  const op = new HiddenAttribute<string>(ar, 'bla', 'string', key);
+  const op = new KleisimoAttribute<string>(ar, 'bla', 'string', key);
   expect(ar.attributes).toEqual([
     { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
   ]);
   expect(op.get()).toEqual(undefined);
   op.set('bla');
   expect(op.get()).toEqual('bla');
-  expect(op.getHidden()).toEqual({
+  expect(op.getKleisimo()).toEqual({
     e: [key.encrypt(op.pad(op.get()))],
     h: key.hash(op.get()),
     // t: 'string',
   });
-  op.setHidden({
+  op.setKleisimo({
     e: [key.encrypt('xxxxx')],
     h: key.hash('yyyyy'),
     // t: 'string',
   });
   expect(op.get()).toEqual('xxxxx');
-  expect(op.getHidden()).toEqual({
+  expect(op.getKleisimo()).toEqual({
     e: [key.encrypt(op.pad('xxxxx'))],
     h: key.hash('xxxxx'),
     // t: 'string',
@@ -149,7 +149,7 @@ test('HiddenAttribute<string>', () => {
 });
 
 
-test('HiddenAttribute<number>', () => {
+test('KleisimoAttribute<number>', () => {
     const ar = new AttributeRegister();
     const key = new Key({
       hashSeed: 'hash',
@@ -158,25 +158,25 @@ test('HiddenAttribute<number>', () => {
       key: Buffer.alloc(32, 0x01).toString('base64'),
     },
     });
-    const op = new HiddenAttribute<number>(ar, 'bla', 'number', key);
+    const op = new KleisimoAttribute<number>(ar, 'bla', 'number', key);
     expect(ar.attributes).toEqual([
       { name: 'bla', type: 'number', value: undefined, key: { hashSeed: 'hash', symetric: op.key.symetric } },
     ]);
     expect(op.get()).toEqual(undefined);
     op.set(4711);
     expect(op.get()).toEqual(4711);
-    expect(op.getHidden()).toEqual({
+    expect(op.getKleisimo()).toEqual({
       e: [key.encrypt(op.pad('' + op.get()))],
       h: key.hash('' + op.get()),
       // t: 'number',
     });
-    op.setHidden({
+    op.setKleisimo({
       e: [key.encrypt('4711')],
       h: key.hash('yyyyy'),
       // t: 'number',
     });
     expect(op.get()).toEqual(4711);
-    expect(op.getHidden()).toEqual({
+    expect(op.getKleisimo()).toEqual({
       e: [key.encrypt(op.pad('4711'))],
       h: key.hash('4711'),
       // t: 'number',

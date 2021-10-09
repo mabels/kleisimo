@@ -1,19 +1,19 @@
 import { Key } from './key';
 
-export interface HiddenObj<T> {
+export interface KleisimoObj<T> {
   readonly e: string[];
   readonly h: string;
   // readonly t: string;
 }
 
-export interface ValueType<T, H = HiddenObj<T>> {
+export interface ValueType<T, H = KleisimoObj<T>> {
   readonly name: string;
   readonly type: string;
   key?: Key;
   set(t: T): T;
   get(): T;
-  setHidden(t: H): T;
-  getHidden(): H;
+  setKleisimo(t: H): T;
+  getKleisimo(): H;
 }
 
 // export interface RegisteredValueType<T> extends ValueType<T> {
@@ -41,13 +41,13 @@ export class AttributeRegister<O, H> {
 
   public asEncrypted(): H {
     return this.attributes.reduce((ret, a) => {
-      ret[a.name] = a.getHidden() 
+      ret[a.name] = a.getKleisimo() 
       return ret;
     }, {} as Record<string, unknown>) as unknown as H;
   }
 }
 
-export class HiddenAttribute<T> implements ValueType<T> {
+export class KleisimoAttribute<T> implements ValueType<T> {
   readonly name: string;
   readonly type: string;
   key: Key;
@@ -69,7 +69,7 @@ export class HiddenAttribute<T> implements ValueType<T> {
   unpad(b: string): string {
     return this.key.decrypt(b).toString('utf-8').split('\x00')[0];
   }
-  setHidden(t: HiddenObj<T>): T {
+  setKleisimo(t: KleisimoObj<T>): T {
     const x = this.unpad(t.e[0]);
     // unpad
     switch (this.type) {
@@ -93,7 +93,7 @@ export class HiddenAttribute<T> implements ValueType<T> {
     o.write(p, 'utf-8')
     return o;
   }
-  getHidden(): HiddenObj<T> {
+  getKleisimo(): KleisimoObj<T> {
     const v = '' + this.value;
     // pad
     return {
@@ -102,17 +102,17 @@ export class HiddenAttribute<T> implements ValueType<T> {
       // t: this.type
     }
   }
-  // asHiddenValue): HiddenValue {
+  // asKleisimoValue): KleisimoValue {
   // }
 }
 
-export interface HiddenDateObj {
+export interface KleisimoDateObj {
   month: number;
   year: number;
   encrypted: string
 }
 
-export class HiddenDateAttribute implements ValueType<Date, HiddenDateObj> {
+export class KleisimoDateAttribute implements ValueType<Date, KleisimoDateObj> {
   readonly name: string;
   readonly type: string;
   key: Key;
@@ -127,11 +127,11 @@ export class HiddenDateAttribute implements ValueType<Date, HiddenDateObj> {
   get(): Date {
     return this.value
   }
-  setHidden(t: HiddenDateObj): Date {
+  setKleisimo(t: KleisimoDateObj): Date {
     this.value = new Date(this.key.decrypt(t.encrypted).toString())
     return this.value
   }
-  getHidden(): HiddenDateObj {
+  getKleisimo(): KleisimoDateObj {
     return {
       month: this.value.getMonth(),
       year: this.value.getFullYear(),
@@ -144,11 +144,11 @@ export class HiddenDateAttribute implements ValueType<Date, HiddenDateObj> {
   }
 }
 
-export interface HiddenZipObj {
+export interface KleisimoZipObj {
   readonly zip: string;
 }
 
-export class HiddenZipAttribute implements ValueType<string, HiddenZipObj> {
+export class KleisimoZipAttribute implements ValueType<string, KleisimoZipObj> {
   readonly name: string;
   readonly type: string;
   key: Key;
@@ -163,11 +163,11 @@ export class HiddenZipAttribute implements ValueType<string, HiddenZipObj> {
   get(): string {
     return this.value;
   }
-  setHidden(t: HiddenZipObj): string {
+  setKleisimo(t: KleisimoZipObj): string {
     this.value = t.zip;
     return this.value;
   }
-  getHidden(): HiddenZipObj {
+  getKleisimo(): KleisimoZipObj {
     return {
       zip: this.value
     }
@@ -199,13 +199,13 @@ export class OpenAttribute<T> implements ValueType<T, T> {
     return this.value;
   }
 
-  getHidden(): T {
+  getKleisimo(): T {
     return this.value;
   }
-  setHidden(t: T): T {
+  setKleisimo(t: T): T {
     this.value = t;
     return this.value;
   }
-  // asHiddenValue): HiddenValue {
+  // asKleisimoValue): KleisimoValue {
   // }
 }

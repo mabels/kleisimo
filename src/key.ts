@@ -8,7 +8,7 @@ export interface KeyProp {
   };
 }
 
-export function createKey(seed: string): Promise<Key> {
+export function create(seed: string): Promise<Key> {
   return new Promise<Key>((rs, rj) => {
     crypto.randomBytes(32, (err, key) => {
       if (err) {
