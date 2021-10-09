@@ -25,10 +25,12 @@ async function ExampleKey(): Promise<ExampleKey> {
 }
 
 test('example', async () => {
-  const ac = new Example(await ExampleKey());
-  ac.assign(EXAMPLE);
-  expect(ac.asUnencrypted()).toEqual(EXAMPLE);
+  const key = await ExampleKey();
+  const ac0 = new Example(key);
+  ac0.assign(EXAMPLE);
+  expect(ac0.asUnencrypted()).toEqual(EXAMPLE);
   // console.log(ac.asEncrypted())
-  ac.assignEncryped(ac.asEncrypted());
-  expect(ac.asUnencrypted()).toEqual(EXAMPLE);
+  const ac1 = new Example(key);
+  ac1.assignEncryped(ac0.asEncrypted());
+  expect(ac1.asUnencrypted()).toEqual(EXAMPLE);
 });
