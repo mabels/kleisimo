@@ -122,22 +122,22 @@ test('KleisimoAttribute<string>', () => {
   expect(op.get()).toEqual(undefined);
   op.set('bla');
   expect(op.get()).toEqual('bla');
-  expect(op.getKleisimo()).toEqual({
+  expect(op.getKleisimo()).toEqual(op.encode({
     e: [key.encrypt(op.pad(op.get()))],
     h: key.hash(op.get()),
     // t: 'string',
-  });
-  op.setKleisimo({
+  }));
+  op.setKleisimo(op.encode({
     e: [key.encrypt('xxxxx')],
     h: key.hash('yyyyy'),
     // t: 'string',
-  });
+  }));
   expect(op.get()).toEqual('xxxxx');
-  expect(op.getKleisimo()).toEqual({
+  expect(op.getKleisimo()).toEqual(op.encode({
     e: [key.encrypt(op.pad('xxxxx'))],
     h: key.hash('xxxxx'),
     // t: 'string',
-  });
+  }));
 });
 
 test('KleisimoAttribute<number>', () => {
@@ -156,20 +156,20 @@ test('KleisimoAttribute<number>', () => {
   expect(op.get()).toEqual(undefined);
   op.set(4711);
   expect(op.get()).toEqual(4711);
-  expect(op.getKleisimo()).toEqual({
+  expect(op.getKleisimo()).toEqual(op.encode({
     e: [key.encrypt(op.pad('' + op.get()))],
     h: key.hash('' + op.get()),
     // t: 'number',
-  });
-  op.setKleisimo({
+  }));
+  op.setKleisimo(op.encode({
     e: [key.encrypt('4711')],
     h: key.hash('yyyyy'),
     // t: 'number',
-  });
+  }));
   expect(op.get()).toEqual(4711);
-  expect(op.getKleisimo()).toEqual({
+  expect(op.getKleisimo()).toEqual(op.encode({
     e: [key.encrypt(op.pad('4711'))],
     h: key.hash('4711'),
     // t: 'number',
-  });
+  }));
 });

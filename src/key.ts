@@ -1,4 +1,7 @@
 import * as crypto from 'crypto';
+import baseX from 'base-x';
+
+export const bs58 = baseX('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz');
 
 export interface KeyProp {
   readonly hashSeed: string;
@@ -50,15 +53,18 @@ export class Key {
   }
 
   decrypt(dec: string): Buffer {
-    let decipher = crypto.createDecipheriv('chacha20-poly1305', this.symetric.key, this.symetric.nounce, {
+    if (!dec.startsWith('C')) {
+      throw Error(`Unknown cipher:${dec}`);
+    }
+    dec = dec.slice('C'.length);
+    const decipher = crypto.createDecipheriv('chacha20-poly1305', this.symetric.key, this.symetric.nounce, {
       authTagLength: 4,
     });
-    const ret = decipher.update(Buffer.from(dec, 'base64'));
+    const ret = decipher.update(bs58.decode(dec));
     decipher.final();
     return ret;
   }
-  encrypt(enc: string| Buffer): string {
-
+  encrypt(enc: string| Buffer, addition?: Buffer): string {
     const cipher = crypto.createCipheriv('chacha20-poly1305', this.symetric.key, this.symetric.nounce, {
       authTagLength: 4,
     });
@@ -68,14 +74,19 @@ export class Key {
     } else {
       out = enc
     }
+    if (addition) {
+      cipher.setAAD(addition, { plaintextLength: addition?.length });
+    }
     const ret = cipher.update(out);
     cipher.final();
-    return ret.toString('base64');
+    // C means chacha20-poly1305
+    return 'C'+bs58.encode(ret);
   }
   hash(enc: string): string {
     const hasher = crypto.createHash('sha256');
     hasher.update(this.hashSeed);
     hasher.update(enc.toUpperCase().replace(/[\n\r \t]+/g, ''));
-    return hasher.digest('base64');
+    // 'A' means sha256 upcase und replace 
+    return 'A'+bs58.encode(hasher.digest());
   }
 }

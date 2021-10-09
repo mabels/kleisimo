@@ -34,6 +34,6 @@ test('hash', () => {
       key: Buffer.alloc(32, 0x01).toString('base64'),
     },
   });
-  expect(key.hash('input')).toBe('xZDQwv0Y19fdCvE+5NAueSHQiJQJNugFoAKoOfe9Vbo=');
-  expect(key.hash(' in\nPut ')).toBe('xZDQwv0Y19fdCvE+5NAueSHQiJQJNugFoAKoOfe9Vbo=');
+  expect(key.hash('input')).toBe('AEJDPjgo535AwWJ2tEPt8KW91DDS9JiktH6hsQ2Xq6kLR');
+  expect(key.hash(' in\nPut ')).toBe('AEJDPjgo535AwWJ2tEPt8KW91DDS9JiktH6hsQ2Xq6kLR');
 });

@@ -1,12 +1,13 @@
-import { Key } from './key';
+import { bs58, Key } from './key';
 
-export interface Obj<T> {
-  readonly e: string[];
-  readonly h: string;
-  // readonly t: string;
+export type Obj<T> = T;
+
+export interface DecodeObj {
+  e: string[];
+  h: string;
 }
 
-export interface ValueType<T, H = Obj<T>> {
+export interface ValueType<T, H = string> {
   readonly name: string;
   readonly type: string;
   key?: Key;
@@ -69,8 +70,16 @@ export class Attribute<T> implements ValueType<T> {
   unpad(b: string): string {
     return this.key.decrypt(b).toString('utf-8').split('\x00')[0];
   }
-  setKleisimo(t: Obj<T>): T {
-    const x = this.unpad(t.e[0]);
+  decode(b: string): DecodeObj {
+    const o = b.split('-');
+    return {
+      e: o.slice(1),
+      h: o[0],
+    };
+  }
+  setKleisimo(t: string): T {
+    const o = this.decode(t);
+    const x = this.unpad(o.e[0]);
     // unpad
     switch (this.type) {
       case 'number':
@@ -93,14 +102,16 @@ export class Attribute<T> implements ValueType<T> {
     o.write(p, 'utf-8');
     return o;
   }
-  getKleisimo(): Obj<T> {
+  encode(o: DecodeObj): string {
+    return [o.h, ...o.e].join('-');
+  }
+  getKleisimo(): string {
     const v = '' + this.value;
     // pad
-    return {
+    return this.encode({
       e: [this.key.encrypt(this.pad(v))],
       h: this.key.hash(v),
-      // t: this.type
-    };
+    });
   }
   // asKleisimoValue): KleisimoValue {
   // }
