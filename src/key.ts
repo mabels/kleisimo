@@ -44,11 +44,11 @@ export class Key {
     nounce: Buffer;
   };
 
-  constructor(prob: KeyProp) {
-    this.hashSeed = prob.hashSeed;
+  constructor(prop: KeyProp) {
+    this.hashSeed = prop.hashSeed;
     this.symetric = {
-      key: Buffer.from(prob.symetric.key, 'base64'),
-      nounce: Buffer.from(prob.symetric.nounce, 'base64'),
+      key: Buffer.from(prop.symetric.key, 'base64'),
+      nounce: Buffer.from(prop.symetric.nounce, 'base64'),
     };
   }
 
@@ -86,7 +86,7 @@ export class Key {
     const hasher = crypto.createHash('sha256');
     hasher.update(this.hashSeed);
     hasher.update(enc.toUpperCase().replace(/[\n\r \t]+/g, ''));
-    // 'A' means sha256 upcase und replace 
+    // 'A' means sha256 upcase und replace
     return 'A'+bs58.encode(hasher.digest());
   }
 }
