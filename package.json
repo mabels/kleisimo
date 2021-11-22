@@ -26,6 +26,6 @@
   "license": "AFL-2.0",
   "dependencies": {
     "base-x": "^3.0.8",
-    "c5-envelope": "^1.0.16"
+    "c5-envelope": "^1.0.17"
   }
 }
