@@ -5,3 +5,5 @@ export interface Encrypted {
   readonly reason?: string;
   readonly hash: string;
 }
+
+export type Decrypted = Encrypted;
