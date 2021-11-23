@@ -4,7 +4,7 @@ import { SymetricKey } from './key';
 interface KeyTest {
   name: string;
   type: unknown;
-  key: { key: string; hashSeed: string; nounce: string };
+  key: { key: string; hashSeed: string; nonce: string };
 }
 
 function keymap(entry: ValueType<unknown,unknown>): KeyTest {
@@ -12,7 +12,7 @@ function keymap(entry: ValueType<unknown,unknown>): KeyTest {
     return {
       name: entry.name,
       type: entry.type,
-      key: { key: entry.key!.key, hashSeed: entry.key!.hashSeed, nounce: entry.key!.nounce },
+      key: { key: entry.key!.key, hashSeed: entry.key!.hashSeed, nonce: entry.key!.nonce },
     };
   }
 }
@@ -69,13 +69,13 @@ test('KleisimoZipAttribute', async () => {
   const ar = new AttributeRegister();
   const key = new SymetricKey({
     hashSeed: 'hash',
-      nounce: Buffer.alloc(12, 0xff).toString('base64'),
+      nonce: Buffer.alloc(12, 0xff).toString('base64'),
       key: Buffer.alloc(32, 0x01).toString('base64'),
   });
   await key.create();
   const op = new ZipAttribute(ar, 'bla', key);
   expect(ar.attributes.map(keymap)).toEqual([
-    { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash',  key: op.key.key, nounce: op.key.nounce} },
+    { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash',  key: op.key.key, nonce: op.key.nonce} },
   ]);
   expect(op.get()).toEqual(undefined);
   op.set('in');
@@ -90,12 +90,12 @@ test('KleisimoDateAttribute', () => {
   const ar = new AttributeRegister();
   const key = new SymetricKey({
     hashSeed: 'hash',
-    nounce: Buffer.alloc(12, 0xff).toString('base64'),
+    nonce: Buffer.alloc(12, 0xff).toString('base64'),
     key: Buffer.alloc(32, 0x01).toString('base64'),
   });
   const op = new DateAttribute(ar, 'bla', key);
   expect(ar.attributes.map(keymap)).toEqual([
-    { name: 'bla', type: 'Date', value: undefined, key: { hashSeed: 'hash', key: op.key.key, nounce: op.key.nounce } },
+    { name: 'bla', type: 'Date', value: undefined, key: { hashSeed: 'hash', key: op.key.key, nonce: op.key.nonce } },
   ]);
   expect(op.get()).toEqual(undefined);
   const now = new Date();
@@ -123,12 +123,12 @@ test('KleisimoAttribute<string>', () => {
   const ar = new AttributeRegister();
   const key = new SymetricKey({
     hashSeed: 'hash',
-    nounce: Buffer.alloc(12, 0xff).toString('base64'),
+    nonce: Buffer.alloc(12, 0xff).toString('base64'),
     key: Buffer.alloc(32, 0x01).toString('base64'),
   });
   const op = new Attribute<string>(ar, 'bla', 'string', key);
   expect(ar.attributes.map(keymap)).toEqual([
-    { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash',  key: op.key.key, nounce: op.key.nounce  }} ,
+    { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash',  key: op.key.key, nonce: op.key.nonce  }} ,
   ]);
   expect(op.get()).toEqual(undefined);
   op.set('bla');
@@ -161,12 +161,12 @@ test('KleisimoAttribute<number>', () => {
   const ar = new AttributeRegister();
   const key = new SymetricKey({
     hashSeed: 'hash',
-    nounce: Buffer.alloc(12, 0xff).toString('base64'),
+    nonce: Buffer.alloc(12, 0xff).toString('base64'),
     key: Buffer.alloc(32, 0x01).toString('base64'),
   });
   const op = new Attribute<number>(ar, 'bla', 'number', key);
   expect(ar.attributes.map(keymap)).toEqual([
-    { name: 'bla', type: 'number', value: undefined, key: { hashSeed: 'hash', key: op.key.key, nounce: op.key.nounce }},
+    { name: 'bla', type: 'number', value: undefined, key: { hashSeed: 'hash', key: op.key.key, nonce: op.key.nonce }},
   ]);
   expect(op.get()).toEqual(undefined);
   op.set(4711);
