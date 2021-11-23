@@ -1,6 +1,22 @@
 import { AttributeRegister, Obj, ValueType, OpenAttribute, ZipAttribute, DateAttribute, Attribute } from './kleisimo';
 import { SymetricKey } from './key';
 
+interface KeyTest {
+  name: string;
+  type: unknown;
+  key: { key: string; hashSeed: string; nounce: string };
+}
+
+function keymap(entry: ValueType<unknown,unknown>): KeyTest {
+  {
+    return {
+      name: entry.name,
+      type: entry.type,
+      key: { key: entry.key!.key, hashSeed: entry.key!.hashSeed, nounce: entry.key!.nounce },
+    };
+  }
+}
+
 class MockValueType implements ValueType<string> {
   readonly name: string = 'name';
   readonly type: string = 'string';
@@ -58,8 +74,8 @@ test('KleisimoZipAttribute', async () => {
   });
   await key.create();
   const op = new ZipAttribute(ar, 'bla', key);
-  expect(ar.attributes).toEqual([
-    { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash', symetric: { key: op.key.key, nounce: op.key.nounce}} },
+  expect(ar.attributes.map(keymap)).toEqual([
+    { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash',  key: op.key.key, nounce: op.key.nounce} },
   ]);
   expect(op.get()).toEqual(undefined);
   op.set('in');
@@ -78,8 +94,8 @@ test('KleisimoDateAttribute', () => {
     key: Buffer.alloc(32, 0x01).toString('base64'),
   });
   const op = new DateAttribute(ar, 'bla', key);
-  expect(ar.attributes).toEqual([
-    { name: 'bla', type: 'Date', value: undefined, key: { hashSeed: 'hash', symetric:{ key: op.key.key, nounce: op.key.nounce} } },
+  expect(ar.attributes.map(keymap)).toEqual([
+    { name: 'bla', type: 'Date', value: undefined, key: { hashSeed: 'hash', key: op.key.key, nounce: op.key.nounce } },
   ]);
   expect(op.get()).toEqual(undefined);
   const now = new Date();
@@ -111,8 +127,8 @@ test('KleisimoAttribute<string>', () => {
     key: Buffer.alloc(32, 0x01).toString('base64'),
   });
   const op = new Attribute<string>(ar, 'bla', 'string', key);
-  expect(ar.attributes).toEqual([
-    { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash', symetric: { key: op.key.key, nounce: op.key.nounce } }} ,
+  expect(ar.attributes.map(keymap)).toEqual([
+    { name: 'bla', type: 'string', value: undefined, key: { hashSeed: 'hash',  key: op.key.key, nounce: op.key.nounce  }} ,
   ]);
   expect(op.get()).toEqual(undefined);
   op.set('bla');
@@ -149,8 +165,8 @@ test('KleisimoAttribute<number>', () => {
     key: Buffer.alloc(32, 0x01).toString('base64'),
   });
   const op = new Attribute<number>(ar, 'bla', 'number', key);
-  expect(ar.attributes).toEqual([
-    { name: 'bla', type: 'number', value: undefined, key: { hashSeed: 'hash', symetric: { key: op.key.key, nounce: op.key.nounce} }},
+  expect(ar.attributes.map(keymap)).toEqual([
+    { name: 'bla', type: 'number', value: undefined, key: { hashSeed: 'hash', key: op.key.key, nounce: op.key.nounce }},
   ]);
   expect(op.get()).toEqual(undefined);
   op.set(4711);
