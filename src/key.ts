@@ -81,7 +81,7 @@ export class SymetricKey {
       throw Error(`Unknown cipher:${dec}`);
     }
     dec = dec.slice('C'.length);
-    const decipher = crypto.createDecipheriv(this.alg, this.key, this.nounce, {
+    const decipher = crypto.createDecipheriv(this.alg, Buffer.from(this.key, 'base64'), Buffer.from(this.nounce, 'base64'), {
       authTagLength: 4,
     });
     const ret = decipher.update(bs58.decode(dec));
@@ -90,7 +90,7 @@ export class SymetricKey {
   }
 
   encrypt(enc: string | Buffer, addition?: Buffer): string {
-    const cipher = crypto.createCipheriv(this.alg, this.key, this.nounce, {
+    const cipher = crypto.createCipheriv(this.alg, Buffer.from(this.key, 'base64'), Buffer.from(this.nounce, 'base64'), {
       authTagLength: 4,
     });
     let out: Buffer;

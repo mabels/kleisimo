@@ -12,10 +12,8 @@ test('wrap encryption envelope', async () => {
   });
 
   await key.create();
-  console.log(key.nounceBuffer, key.nounceBuffer!.length, key.nounce, key.nounceLength, key.nounce.length);
   const payloadSeal = new PayloadSeal(key);
   const encrypted = payloadSeal.seal({ message, reason: 'reason' });
-  console.log(encrypted.data);
   expect(encrypted.data.message).not.toEqual(message);
   expect(encrypted.data.reason).toEqual('reason');
   expect(encrypted.kind).toEqual(schema);

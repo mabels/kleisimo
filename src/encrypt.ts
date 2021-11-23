@@ -33,8 +33,8 @@ export class PayloadSeal {
     this.key = key;
   }
 
-  seal({ message, reason, jsonProps }: PayloadSealProps): Payload<Encrypted> {
-    const jsonHash = toDataJson({ message, jsonProps });
+  seal({ message, reason}: PayloadSealProps): Payload<Encrypted> {
+    const jsonHash = toDataJson({ message});
     const hash = jsonHash.hash || '';
     const encrypted: Encrypted = {
       keyId: this.key.id!,
@@ -50,7 +50,7 @@ export class PayloadSeal {
     if (encrypted.kind === schema) {
       return {
         kind: schema,
-        data: {...encrypted.data, message: this.key.decrypt(encrypted.data.message).toString()},
+        data: {...encrypted.data, message: JSON.parse(this.key.decrypt(encrypted.data.message).toString())},
       }
     }
     return undefined
@@ -59,16 +59,16 @@ export class PayloadSeal {
 
 function toDataJson({
   message,
-  jsonProps,
   salt,
+  jsonProps,
 }: {
   message: unknown;
-  jsonProps?: Partial<JsonProps>;
+  jsonProps?: JsonProps;
   salt?: string;
 }): JsonHash {
   const dataJsonStrings: string[] = [];
-  const dataJsonC = new JsonCollector((part) => dataJsonStrings.push(part), jsonProps);
   const dataHashC = new HashCollector();
+  const dataJsonC = new JsonCollector((part) => dataJsonStrings.push(part), jsonProps);
   dataHashC.append({ val: new PlainValType(salt || '') });
   sortKeys(message, (sval: SVal) => {
     dataHashC.append(sval);
