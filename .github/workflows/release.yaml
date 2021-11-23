@@ -7,7 +7,7 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - 'release'
+      - 'v*'
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -26,16 +26,21 @@ jobs:
       with:
           node-version: ${{ matrix.node-version }}
 
+    - uses: mabels/neckless@main
+      with:
+        version: v0.1.7
+
+    - name: Patch Version ${{ env.GITHUB_REF }}
+      run: |
+       node patch-package.json.js "$GITHUB_REF"
+       git diff
+
     - name: Build kleisimo
       run: |
         npm ci
         npm install
         npm run build
         npm run test
-
-    - uses: mabels/neckless@main
-      with:
-        version: v0.1.7
 
     - name: Publish kleisimo
       env:
