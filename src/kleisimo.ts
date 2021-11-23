@@ -1,4 +1,4 @@
-import { bs58, Key } from './key';
+import { SymetricKey } from './key';
 
 export type Obj<T> = T;
 
@@ -10,7 +10,7 @@ export interface DecodeObj {
 export interface ValueType<T, H = string> {
   readonly name: string;
   readonly type: string;
-  key?: Key;
+  key?: SymetricKey;
   set(t: T): T;
   get(): T;
   setKleisimo(t: H): T;
@@ -51,9 +51,9 @@ export class AttributeRegister<O, H> {
 export class Attribute<T> implements ValueType<T> {
   readonly name: string;
   readonly type: string;
-  key: Key;
+  key: SymetricKey;
   value: T;
-  constructor(ar: AttributeRegister<unknown, unknown>, name: string, type: string, key: Key) {
+  constructor(ar: AttributeRegister<unknown, unknown>, name: string, type: string, key: SymetricKey) {
     this.name = name;
     this.type = type;
     this.value = undefined as unknown as T;
@@ -126,9 +126,9 @@ export interface DateObj {
 export class DateAttribute implements ValueType<Date, DateObj> {
   readonly name: string;
   readonly type: string;
-  key: Key;
+  key: SymetricKey;
   value: Date;
-  constructor(ar: AttributeRegister<unknown, unknown>, name: string, key: Key) {
+  constructor(ar: AttributeRegister<unknown, unknown>, name: string, key: SymetricKey) {
     this.name = name;
     this.type = 'Date';
     this.value = undefined as unknown as Date;
@@ -162,9 +162,9 @@ export interface ZipObj {
 export class ZipAttribute implements ValueType<string, ZipObj> {
   readonly name: string;
   readonly type: string;
-  key: Key;
+  key: SymetricKey;
   value: string;
-  constructor(ar: AttributeRegister<unknown, unknown>, name: string, key: Key) {
+  constructor(ar: AttributeRegister<unknown, unknown>, name: string, key: SymetricKey) {
     this.name = name;
     this.type = 'string';
     this.value = undefined as unknown as string;
@@ -200,7 +200,7 @@ export class OpenAttribute<T> implements ValueType<T, T> {
     ar.register(this);
   }
 
-  key?: Key | undefined;
+  key?: SymetricKey | undefined;
   set(t: T): T {
     this.value = t;
     return t;

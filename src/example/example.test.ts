@@ -14,13 +14,13 @@ const EXAMPLE: ExampleObj = {
 
 async function ExampleKey(): Promise<ExampleKey> {
   return {
-    CreatedAt: await Key.create('CreatedAt'),
-    RegisteredWithToken: await Key.create('RegisteredWithToken'),
-    FirstName: await Key.create('FirstName'),
-    LastName: await Key.create('LastName'),
-    Email: await Key.create('Email'),
-    Zip: await Key.create('Zip'),
-    UpdatedAt: await Key.create('UpdatedAt'),
+    CreatedAt: await Key.SymetricKey.create({hashSeed: 'CreatedAt'}),
+    RegisteredWithToken: await Key.SymetricKey.create({hashSeed: 'RegisteredWithToken'}),
+    FirstName: await Key.SymetricKey.create({hashSeed: 'FirstName'}),
+    LastName: await Key.SymetricKey.create({hashSeed: 'LastName'}),
+    Email: await Key.SymetricKey.create({hashSeed: 'Email'}),
+    Zip: await Key.SymetricKey.create({hashSeed: 'Zip'}),
+    UpdatedAt: await Key.SymetricKey.create({hashSeed: 'UpdatedAt'}),
   };
 }
 

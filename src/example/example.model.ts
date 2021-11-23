@@ -23,13 +23,13 @@ export interface ExampleKleisimo {
 }
 
 export interface ExampleKey {
-  readonly CreatedAt: Key.Key;
-  readonly RegisteredWithToken: Key.Key;
-  readonly FirstName: Key.Key;
-  readonly LastName: Key.Key;
-  readonly Email: Key.Key;
-  readonly Zip: Key.Key;
-  readonly UpdatedAt: Key.Key;
+  readonly CreatedAt: Key.SymetricKey;
+  readonly RegisteredWithToken: Key.SymetricKey;
+  readonly FirstName: Key.SymetricKey;
+  readonly LastName: Key.SymetricKey;
+  readonly Email: Key.SymetricKey;
+  readonly Zip: Key.SymetricKey;
+  readonly UpdatedAt: Key.SymetricKey;
 }
 
 export class Example extends Kleisimo.AttributeRegister<ExampleObj, ExampleKleisimo> {

@@ -9,41 +9,58 @@ import {
   SVal,
   sortKeys,
 } from 'c5-envelope';
-import { Encrypted } from '../schema/encrypted';
+import { Encrypted, Decrypted } from '../schema/encrypted';
+import {SymetricKey} from './key';
 
 export interface Key {
   readonly id: string;
   readonly alg: string;
-  encrypt: (iv: string, message: string) => string;
-  decrypt: (iv: string, encrytped: string) => string;
+  encrypt(iv: string, message: string): string;
+  decrypt(encrytped: string): string;
 }
 
-interface WrapEncryptedProps {
+interface PayloadSealProps {
   readonly message: unknown;
   readonly reason?: string;
-  readonly key: Key;
   readonly jsonProps?: JsonProps;
 }
 
 export const schema = 'https://github.com/mabels/kleisimo/blob/main/schema/encrypted.ts';
 
-export function wrapEncrypt({ key, message, reason, jsonProps }: WrapEncryptedProps): Payload<Encrypted> {
-  const jsonHash = toDataJson({ message, jsonProps });
-  const hash = jsonHash.hash || "";
-  const encrypted: Encrypted = {
-    keyId: key.id,
-    encryptionMethod: key.alg,
-    message: key.encrypt(key.id + hash, jsonHash.jsonStr),
-    reason,
-    hash
-  };
-  return Convert.toPayloadT(JSON.stringify({ data: encrypted, kind: schema })) as Payload<Encrypted>;
+export class PayloadSeal {
+  readonly key: SymetricKey;
+  constructor(key: SymetricKey) {
+    this.key = key;
+  }
+
+  seal({ message, reason, jsonProps }: PayloadSealProps): Payload<Encrypted> {
+    const jsonHash = toDataJson({ message, jsonProps });
+    const hash = jsonHash.hash || '';
+    const encrypted: Encrypted = {
+      keyId: this.key.id!,
+      encryptionMethod: this.key.alg,
+      message: this.key.encrypt(jsonHash.jsonStr),
+      reason,
+      hash,
+    };
+    return Convert.toPayloadT(JSON.stringify({ data: encrypted, kind: schema })) as Payload<Encrypted>;
+  }
+
+  unseal(encrypted: Payload<Encrypted>): Payload<Decrypted> | undefined{
+    if (encrypted.kind === schema) {
+      return {
+        kind: schema,
+        data: {...encrypted.data, message: this.key.decrypt(encrypted.data.message).toString()},
+      }
+    }
+    return undefined
+  }
 }
 
 function toDataJson({
   message,
   jsonProps,
-  salt
+  salt,
 }: {
   message: unknown;
   jsonProps?: Partial<JsonProps>;
@@ -59,6 +76,6 @@ function toDataJson({
   });
   return {
     jsonStr: dataJsonStrings.join(''),
-    hash: dataHashC.digest()
+    hash: dataHashC.digest(),
   };
 }
