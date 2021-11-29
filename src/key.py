@@ -10,6 +10,8 @@ from cryptography.hazmat.primitives import hashes
 
 @dataclass
 class SymetricKeyProps:
+    alg: str
+    id: Optional[str] = None
     nonce: Optional[bytes] = None
     key: Optional[bytes] = None
     hashSeed: str = str(uuid.uuid4())
@@ -26,6 +28,7 @@ class SymetricKey:
     _nonce_length: int
 
     def __init__(self, props: SymetricKeyProps):
+        self._id = props.id
         self._key = props.key
         self._nonce = props.nonce
         self._hashSeed = props.hashSeed
@@ -68,10 +71,10 @@ class SymetricKey:
             raise Exception("nonce is not set")
         return self._nonce
 
-    def encrypt(self, message: bytes, addition: Optional[bytes] ) -> bytes:
+    def encrypt(self, message: bytes, addition: Optional[bytes] = None ) -> bytes:
         return self._chacha.encrypt(self.nonce, message, addition)
 
-    def decrypt(self, encrypted: bytes, addition: Optional[bytes] ) -> bytes:
+    def decrypt(self, encrypted: bytes, addition: Optional[bytes] = None) -> bytes:
         return self._chacha.decrypt(self.nonce, encrypted, addition)
 
     def hash(self, enc: str)-> str:

@@ -6,10 +6,11 @@ from key import SymetricKey, SymetricKeyProps
 class SymetricKeyTest(unittest.TestCase):
     def test_en_decrypt(self) -> None:
         message ="this is the only one message"
-        key = SymetricKey.create(SymetricKeyProps())
-        encrypted = key.encrypt(message.encode(), None)
-        decrypted = key.decrypt(encrypted, None)
-        print(decrypted)
+        key = SymetricKey.create(SymetricKeyProps(
+            alg = 'chacha20-poly1305',
+            ))
+        encrypted = key.encrypt(message.encode())
+        decrypted = key.decrypt(encrypted)
         self.assertEqual(message,decrypted.decode())
 
 
@@ -18,6 +19,7 @@ class SymetricKeyTest(unittest.TestCase):
             hashSeed= 'Hash',
             nonce = bytes('////////////', "utf-8"),
             key = bytes('AQEBAQEBAQEBAQEB', "utf-8"),
+            alg = 'chacha20-poly1305',
         )
             # nonce= Buffer.alloc(12, 0xff).toString('base64'),
             # key= Buffer.alloc(32, 0x01).toString('base64'),
