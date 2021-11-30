@@ -3,6 +3,49 @@ import baseX from 'base-x';
 
 export const bs58 = baseX('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz');
 
+interface Algorithm {
+  encrypt(message: Buffer, addition: Buffer | undefined, nonce: string): Buffer
+  decrypt(message: Buffer, additionLength: number, nonce: Buffer): {dec: Buffer, additional?: Buffer}
+}
+
+export class ChaCha20Poly1305 implements Algorithm {
+
+  readonly opts?: crypto.CipherGCMOptions;
+  readonly key: Buffer;
+  readonly alg: string;
+
+  constructor(alg: string, key: Buffer, opts?: crypto.CipherGCMOptions) {
+    this.alg = alg;
+    this.key = key;
+    this.opts = opts;
+  }
+
+  encrypt(message: Buffer, addition: Buffer| undefined, nonce: string): Buffer {
+    const cipher = crypto.createCipheriv(this.alg, this.key, nonce, this.opts );
+    // if (addition) {
+      // cipher.setAAD(addition, { plaintextLength: addition?.length });
+    // }
+    const ret = cipher.update(message);
+    cipher.final();
+    return ret
+}
+  decrypt(dec: Buffer, additionLength: number,nonce: Buffer): {dec: Buffer, additional?: Buffer} {
+    const decipher = crypto.createDecipheriv(this.alg, this.key, nonce, this.opts)
+    const ret = decipher.update(dec);
+    // decipher.setAAD(Buffer.alloc(additionLength));
+    // read additional
+    // decipher.
+    decipher.final();
+    return {dec: ret}
+  }
+
+}
+
+function createAlgorithm(alg: string): Algorithm {
+  const key = Buffer.alloc(16);
+  return new ChaCha20Poly1305("chacha20", key);
+}
+
 export interface SymetricKeyProp {
   readonly id?: string;
   readonly hashSeed?: string;

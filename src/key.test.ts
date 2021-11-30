@@ -1,4 +1,4 @@
-import { SymetricKey } from './key';
+import { SymetricKey, ChaCha20Poly1305 } from './key';
 
 test('key', async () => {
     const nonce= Buffer.alloc(12, 0xff).toString('base64');
@@ -35,3 +35,12 @@ test('hash', async () => {
   expect(key.hash('input')).toBe('AEJDPjgo535AwWJ2tEPt8KW91DDS9JiktH6hsQ2Xq6kLR');
   expect(key.hash(' in\nPut ')).toBe('AEJDPjgo535AwWJ2tEPt8KW91DDS9JiktH6hsQ2Xq6kLR');
 });
+test('algorithm', async () => {
+  const nonce= Buffer.alloc(12, 0xff).toString('base64');
+  const key= Buffer.alloc(32, 0x01);
+  const chacha = new ChaCha20Poly1305("chacha20", key);
+  const message = Buffer.from("this is very secret!");
+  const enc = chacha.encrypt(message, undefined, nonce);
+  const decrypted = chacha.decrypt(enc, 0, Buffer.from(nonce));
+  expect(decrypted.dec).toEqual(message);
+})
