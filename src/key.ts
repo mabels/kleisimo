@@ -4,46 +4,52 @@ import baseX from 'base-x';
 export const bs58 = baseX('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz');
 
 interface Algorithm {
-  encrypt(message: Buffer, addition: Buffer | undefined, nonce: string): Buffer
-  decrypt(message: Buffer, additionLength: number, nonce: Buffer): {dec: Buffer, additional?: Buffer}
+  encrypt(message: Buffer, addition: Buffer | undefined, nonce: Buffer): Buffer;
+  decrypt(message: Buffer, additionLength: number, nonce: Buffer): { dec: Buffer; additional?: Buffer };
 }
 
+export type supportedAlgs = 'chacha20-poly1305';
+
 export class ChaCha20Poly1305 implements Algorithm {
-
-  readonly opts?: crypto.CipherGCMOptions;
+  readonly opts: crypto.CipherCCMOptions = {
+    authTagLength: 4,
+  };
   readonly key: Buffer;
-  readonly alg: string;
+  readonly alg: crypto.CipherCCMTypes = 'chacha20-poly1305';
 
-  constructor(alg: string, key: Buffer, opts?: crypto.CipherGCMOptions) {
-    this.alg = alg;
+  constructor(key: Buffer, opts?: crypto.CipherCCMOptions) {
     this.key = key;
-    this.opts = opts;
+    if (opts) {
+      this.opts = opts;
+    }
   }
 
-  encrypt(message: Buffer, addition: Buffer| undefined, nonce: string): Buffer {
-    const cipher = crypto.createCipheriv(this.alg, this.key, nonce, this.opts );
+  encrypt(message: Buffer, addition: Buffer | undefined, nonce: Buffer): Buffer {
+    const cipher = crypto.createCipheriv(this.alg, this.key, nonce, this.opts);
     // if (addition) {
       // cipher.setAAD(addition, { plaintextLength: addition?.length });
     // }
     const ret = cipher.update(message);
     cipher.final();
-    return ret
-}
-  decrypt(dec: Buffer, additionLength: number,nonce: Buffer): {dec: Buffer, additional?: Buffer} {
-    const decipher = crypto.createDecipheriv(this.alg, this.key, nonce, this.opts)
+    return ret;
+  }
+  decrypt(dec: Buffer, additionLength: number, nonce: Buffer): { dec: Buffer; additional?: Buffer } {
+    const decipher = crypto.createDecipheriv(this.alg, this.key, nonce, this.opts);
     const ret = decipher.update(dec);
     // decipher.setAAD(Buffer.alloc(additionLength));
     // read additional
     // decipher.
     decipher.final();
-    return {dec: ret}
+    return { dec: ret };
   }
 
 }
 
-function createAlgorithm(alg: string): Algorithm {
-  const key = Buffer.alloc(16);
-  return new ChaCha20Poly1305("chacha20", key);
+export function createAlgorithm(alg: supportedAlgs, key: Buffer): Algorithm {
+  if (alg === 'chacha20-poly1305') {
+    return new ChaCha20Poly1305(key);
+  }
+  throw new Error('Invalid or unsupported algorithm');
 }
 
 export interface SymetricKeyProp {
@@ -124,9 +130,14 @@ export class SymetricKey {
       throw Error(`Unknown cipher:${dec}`);
     }
     dec = dec.slice('C'.length);
-    const decipher = crypto.createDecipheriv(this.alg, Buffer.from(this.key, 'base64'), Buffer.from(this.nonce, 'base64'), {
-      authTagLength: 4,
-    });
+    const decipher = crypto.createDecipheriv(
+      this.alg,
+      Buffer.from(this.key, 'base64'),
+      Buffer.from(this.nonce, 'base64'),
+      {
+        authTagLength: 4,
+      },
+    );
     const ret = decipher.update(bs58.decode(dec));
     decipher.final();
     return ret;
