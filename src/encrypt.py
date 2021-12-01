@@ -33,7 +33,7 @@ class PayloadSeal:
             encrypted = Encrypted.from_dict(encrypted_payload.data)
             decrypted_message = self.key.decrypt(base64.b64decode(encrypted.message.encode()))
             decrypted = Decrypted(encrypted.encryption_method, encrypted.hash,
-                                  encrypted.key_id,
+                                  self.key.id,
                                   decrypted_message.decode(),
                                   encrypted.reason)
             return PayloadT.from_dict({"kind": schema,

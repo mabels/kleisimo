@@ -13,9 +13,9 @@ class PayloadSealTest(unittest.TestCase):
         # message = "this is a test"
         message ={'load': 'this is the only one message'}
         key_props = SymetricKeyProps(
-            # id = 'test-key',
+            id = 'test-key',
             alg = 'chacha20-poly1305',
-            # hashSeed = 'test',
+            hashSeed = 'test',
         )
         key = SymetricKey.create(key_props)
         payloadSeal = PayloadSeal(key)
