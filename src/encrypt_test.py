@@ -1,3 +1,4 @@
+import base64
 import unittest
 import json
 
@@ -26,11 +27,12 @@ class PayloadSealTest(unittest.TestCase):
         )
         key = SymetricKey.create(key_props)
         payloadSeal = PayloadSeal(key)
-        encrypted_payload = payloadSeal.seal(PayloadSealProps(message, reason= 'reason'))
+        encrypted_payload = payloadSeal.seal(PayloadSealProps(message,nonce=key_props.nonce.decode(), reason= 'reason'))
         encrypted = Encrypted.from_dict(encrypted_payload.data)
         self.assertNotEqual(encrypted.message, message)
         self.assertEqual(encrypted.reason,'reason')
         self.assertEqual(encrypted_payload.kind,schema)
+        self.assertEqual(base64.b64decode(encrypted.nonce), key_props.nonce)
         print(json.dumps(encrypted.to_dict()))
         decrypted_payload = payloadSeal.unseal(encrypted_payload)
         decrypted = Decrypted.from_dict(decrypted_payload.data)

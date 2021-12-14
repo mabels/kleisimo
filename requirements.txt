@@ -1,4 +1,5 @@
-c5-envelope==1.0.17
+object-graph-streamer==0.0.1
+c5-envelope==1.0.21
 cryptography==36.0.0
 base58==2.1.1
 

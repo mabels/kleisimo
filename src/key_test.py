@@ -8,10 +8,10 @@ class SymetricKeyTest(unittest.TestCase):
         message ="this is the only one message"
         key = SymetricKey.create(SymetricKeyProps(
             alg = 'chacha20-poly1305',
+            nonce = bytes('////////////', "utf-8"),
             ))
-        nonce: bytes = bytes('////////////', "utf-8"),
-        encrypted = key.encrypt(nonce, message.encode())
-        decrypted = key.decrypt(encrypted)
+        encrypted = key.encrypt(key.nonce, message.encode())
+        decrypted = key.decrypt(key.nonce, encrypted)
         self.assertEqual(message,decrypted.decode())
 
 

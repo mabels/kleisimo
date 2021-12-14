@@ -1,14 +1,17 @@
 import {
-  Convert,
   HashCollector,
-  Payload,
   PlainValType,
   JsonHash,
   JsonProps,
   JsonCollector,
   SVal,
-  sortKeys,
-} from 'c5-envelope';
+  objectGraphStreamer,
+} from 'object-graph-streamer';
+
+import {
+  Convert,
+  Payload  }
+  from 'c5-envelope';
 import { Encrypted, Decrypted } from '../schema/encrypted';
 import {SymetricKey} from './key';
 
@@ -40,6 +43,7 @@ export class PayloadSeal {
       keyId: this.key.id!,
       encryptionMethod: this.key.alg,
       message: this.key.encrypt(jsonHash.jsonStr),
+      nonce: "lsl",
       reason,
       hash,
     };
@@ -59,18 +63,15 @@ export class PayloadSeal {
 
 function toDataJson({
   message,
-  salt,
   jsonProps,
 }: {
   message: unknown;
   jsonProps?: JsonProps;
-  salt?: string;
 }): JsonHash {
   const dataJsonStrings: string[] = [];
   const dataHashC = new HashCollector();
   const dataJsonC = new JsonCollector((part) => dataJsonStrings.push(part), jsonProps);
-  dataHashC.append({ val: new PlainValType(salt || '') });
-  sortKeys(message, (sval: SVal) => {
+  objectGraphStreamer(message, (sval: SVal) => {
     dataHashC.append(sval);
     dataJsonC.append(sval);
   });

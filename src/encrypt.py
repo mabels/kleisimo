@@ -1,11 +1,17 @@
 from dataclasses import dataclass
 from typing import Any, Optional
 from key import SymetricKey
-from c5_envelope import PayloadT, HashCollector, JsonCollector, JsonHash, JsonProps, sortKeys, SVal
+from c5_envelope import PayloadT
+from object_graph_streamer import HashCollector, JsonCollector, JsonProps, objectGraphStreamer, SVal
 
 from lang.python.encrypted import Decrypted, Encrypted
 import base64
 schema = 'https://github.com/mabels/kleisimo/blob/main/schema/encrypted.ts';
+
+@dataclass
+class JsonHash:
+ jsonStr: str
+ hash: str
 
 @dataclass
 class PayloadSealProps:
@@ -35,8 +41,10 @@ class PayloadSeal:
     def unseal(self, encrypted_payload: PayloadT) -> PayloadT:
         if (encrypted_payload.kind == schema):
             encrypted = Encrypted.from_dict(encrypted_payload.data)
-            print(encrypted.nonce)
-            decrypted_message = self.key.decrypt(encrypted.nonce.encode(), base64.b64decode(encrypted.message.encode()))
+            decrypted_message = self.key.decrypt(
+                base64.b64decode(encrypted.nonce),
+                base64.b64decode(encrypted.message.encode())
+            )
             decrypted = Decrypted(encrypted.encryption_method, encrypted.hash,
                                   encrypted.key_id,
                                   decrypted_message.decode(),
@@ -54,9 +62,9 @@ def toDataJson(message, jsonProps: JsonProps = JsonProps()) -> JsonHash:
         dataHashC.append(sval)
         dataJsonC.append(sval)
 
-    sortKeys(message, collect)
+    objectGraphStreamer(message, collect)
     return JsonHash(**{
         'jsonStr': "".join(dataJsonStrings),
-        'hash': dataHashC.digest() if dataHashC is not None else None
+        'hash': dataHashC.digest()
     })
 

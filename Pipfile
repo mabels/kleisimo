@@ -4,10 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-c5-envelope = "*"
-cryptography = "*"
+c5-envelope = "==1.0.21"
+cryptography = "==36.0.0"
 neovim = "*"
-base58 = "*"
+base58 = "==2.1.1"
+object-graph-streamer = "==0.0.1"
 
 [dev-packages]
 
