@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives import hashes
 class SymetricKeyProps:
     alg: str
     id: Optional[str] = None
-    nonce: Optional[bytes] = None
+    nonce: bytes = os.urandom(12)
     key: Optional[bytes] = None
     hashSeed: str = str(uuid.uuid4())
     key_length: int = 32
@@ -22,30 +22,38 @@ class SymetricKey:
     _id: Optional[str]
     _hashSeed: str
     _key: Optional[bytes]
-    _nonce: Optional[bytes]
-    _alg = 'chacha20-poly1305'
+    _nonce: bytes
     _key_length: int
     _nonce_length: int
+    _alg = 'chacha20-poly1305'
+
 
     def __init__(self, props: SymetricKeyProps):
         self._id = props.id
         self._key = props.key
-        self._nonce = props.nonce
         self._hashSeed = props.hashSeed
         self._key_length = props.key_length
         self._nonce_length = props.nonce_length
+        self._nonce = props.nonce
 
     @staticmethod
     def create(props: SymetricKeyProps):
         return SymetricKey(props).generate()
 
+    # def generate_nonce(self, length: Optional[int] = None) -> bytes:
+        # nonce_length = length if length else self._nonce_length
+        # self._nonce = os.urandom(nonce_length)
+        # return self._nonce
+
     def generate(self):
-        self._key = os.urandom(self._key_length)
-        self._nonce = os.urandom(self._nonce_length)
-        digest = hashes.Hash(hashes.SHA256())
-        digest.update(self._key)
-        digest.update(self._nonce)
-        self._id=base58.b58encode(digest.finalize()).decode()
+        if self._key is None:
+            self._key = os.urandom(self._key_length)
+        self._nonce = self._nonce if self._nonce else self.create_nonce()
+        if self._id is None:
+            digest = hashes.Hash(hashes.SHA256())
+            digest.update(self._key)
+            digest.update(self._nonce)
+            self._id=base58.b58encode(digest.finalize()).decode()
         self._chacha = ChaCha20Poly1305(self._key)
         return self
 
@@ -71,11 +79,11 @@ class SymetricKey:
             raise Exception("nonce is not set")
         return self._nonce
 
-    def encrypt(self, message: bytes, addition: Optional[bytes] = None ) -> bytes:
-        return self._chacha.encrypt(self.nonce, message, addition)
+    def encrypt(self, nonce: bytes, message: bytes, addition: Optional[bytes] = None ) -> bytes:
+        return self._chacha.encrypt(nonce, message, addition)
 
-    def decrypt(self, encrypted: bytes, addition: Optional[bytes] = None) -> bytes:
-        return self._chacha.decrypt(self.nonce, encrypted, addition)
+    def decrypt(self, nonce: bytes, encrypted: bytes, addition: Optional[bytes] = None) -> bytes:
+        return self._chacha.decrypt(nonce, encrypted, addition)
 
     def hash(self, enc: str)-> str:
         hasher = hashes.Hash(hashes.SHA256())

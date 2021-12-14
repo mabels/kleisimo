@@ -3,6 +3,7 @@ export interface Encrypted {
   readonly encryptionMethod: string;
   readonly message: string;
   readonly reason?: string;
+  readonly nonce: string;
   readonly hash: string;
 }
 

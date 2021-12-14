@@ -9,7 +9,8 @@ class SymetricKeyTest(unittest.TestCase):
         key = SymetricKey.create(SymetricKeyProps(
             alg = 'chacha20-poly1305',
             ))
-        encrypted = key.encrypt(message.encode())
+        nonce: bytes = bytes('////////////', "utf-8"),
+        encrypted = key.encrypt(nonce, message.encode())
         decrypted = key.decrypt(encrypted)
         self.assertEqual(message,decrypted.decode())
 
@@ -18,7 +19,7 @@ class SymetricKeyTest(unittest.TestCase):
         key_props = SymetricKeyProps(
             hashSeed= 'Hash',
             nonce = bytes('////////////', "utf-8"),
-            key = bytes('AQEBAQEBAQEBAQEB', "utf-8"),
+            key = bytes('AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB', "utf-8"),
             alg = 'chacha20-poly1305',
         )
             # nonce= Buffer.alloc(12, 0xff).toString('base64'),

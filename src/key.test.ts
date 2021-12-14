@@ -1,4 +1,5 @@
 import { SymetricKey, ChaCha20Poly1305 } from './key';
+import {} from 'fs';
 
 test('key', async () => {
     const nonce= Buffer.alloc(12, 0xff).toString('base64');
@@ -25,6 +26,19 @@ test('en-decrypt', async () => {
   expect(key.encrypt('input')).not.toContain('input');
   expect(key.decrypt(key.encrypt('input')).toString()).toBe('input');
 });
+
+test('encrypt and write to file', async () => {
+  const message = {"secret": "this is top secret!"};
+  const key = new SymetricKey({
+    id: "testKey",
+    hashSeed: 'Hash',
+    nonce: Buffer.alloc(12, 0xff).toString('base64'),
+    key: Buffer.alloc(32, 0x01).toString('base64'),
+  });
+  expect(key.encrypt(JSON.stringify(message))).not.toContain('input');
+  expect(key.decrypt(key.encrypt('input')).toString()).toBe('input');
+});
+
 test('hash', async () => {
   const key = new SymetricKey({
     hashSeed: 'Hash',

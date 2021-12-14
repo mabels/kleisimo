@@ -11,6 +11,7 @@ schema = 'https://github.com/mabels/kleisimo/blob/main/schema/encrypted.ts';
 class PayloadSealProps:
     message: Any
     reason: Optional[str]
+    nonce: Optional[str] = None
     jsonProps: Optional[JsonProps] = None
 
 
@@ -23,15 +24,19 @@ class PayloadSeal:
         key_id = self.key.id
         encryption_method = self.key._alg
         jsonHash = toDataJson(props.message)
-        enc: bytes = self.key.encrypt(jsonHash.jsonStr.encode())
+        nonce: bytes = props.nonce.encode() if props.nonce else self.key._nonce
+        enc: bytes = self.key.encrypt(nonce, jsonHash.jsonStr.encode())
         encrypted = Encrypted(encryption_method, jsonHash.hash, key_id,
-                              base64.b64encode(enc).decode(), props.reason)
+                              base64.b64encode(enc).decode(),
+                              base64.b64encode(nonce).decode(), props.reason,
+                              )
         return PayloadT.from_dict({"kind": schema,"data": encrypted.to_dict()})
 
     def unseal(self, encrypted_payload: PayloadT) -> PayloadT:
         if (encrypted_payload.kind == schema):
             encrypted = Encrypted.from_dict(encrypted_payload.data)
-            decrypted_message = self.key.decrypt(base64.b64decode(encrypted.message.encode()))
+            print(encrypted.nonce)
+            decrypted_message = self.key.decrypt(encrypted.nonce.encode(), base64.b64decode(encrypted.message.encode()))
             decrypted = Decrypted(encrypted.encryption_method, encrypted.hash,
                                   encrypted.key_id,
                                   decrypted_message.decode(),
