@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 c5-envelope = "==1.0.21"
-cryptography = "==36.0.0"
+cryptography = "==39.0.1"
 neovim = "*"
 base58 = "==2.1.1"
 object-graph-streamer = "==0.0.1"
